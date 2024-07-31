@@ -1,12 +1,15 @@
-import { UserButton } from '@clerk/nextjs'
-import React from 'react'
+import React, { ReactNode } from 'react';
 
-function dashboardlayout() {
-    return (
-        <div>dashboardlayout
-            <UserButton />
-        </div>
-    )
+interface DashboardLayoutProps {
+    children: ReactNode;
 }
 
-export default dashboardlayout
+const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
+    return (
+        <div>
+            {children}
+        </div>
+    );
+};
+
+export default DashboardLayout;
