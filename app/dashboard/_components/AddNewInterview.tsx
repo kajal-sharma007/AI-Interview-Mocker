@@ -14,29 +14,62 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { chatSession } from '@/utils/GeminiAi';
 import { LoaderCircle } from 'lucide-react';
+import { db } from '@/utils/db';
+import { MockInterview } from '@/utils/schema';
+import { v4 as uuidv4 } from "uuid";
+import { useUser } from '@clerk/nextjs';
+import moment from 'moment';
 
 function AddNewInterview() {
     const [openDialog, setOpenDialog] = useState(false);
     const [jobRole, setJobRole] = useState<string>('');
     const [jobDesc, setJobDesc] = useState<string>('');
     const [jobExp, setJobExp] = useState<string>('');
-    const [loading, setLOading] = useState(false)
+    const [loading, setLoading] = useState(false);
+    const [jsonResponse, setJsonResponse] = useState<any>(null);
+
+    const { user } = useUser();
 
     const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        setLOading(true)
-        e.preventDefault(); // Prevent the default form submission
+        e.preventDefault();
+        setLoading(true);
 
-        console.log(jobRole, jobDesc, jobExp);
+        console.log(jobRole, ",", jobDesc, ",", jobExp)
 
         const inputPrompt = `Job Position: ${jobRole}, Job Description: ${jobDesc}, Years of Experience: ${jobExp}. Based on the job position, job description, and years of experience, provide ${process.env.NEXT_PUBLIC_INTERVIEW_QUESTION_COUNT} interview questions along with answers in JSON format. Provide fields for question and answer in the JSON.`;
 
         try {
             const result = await chatSession.sendMessage(inputPrompt);
-            const MockJsonResp = (result.response.text()).replace('```json', '').replace('```', '')
-            console.log(JSON.parse(MockJsonResp)); // Assuming result.response.text() is a valid method
-            setLOading(false)
+            const MockJsonResp = result.response.text().replace(/```json|```/g, '');
+
+            try {
+                const parsedJsonResponse = JSON.parse(MockJsonResp);
+                console.log(parsedJsonResponse);
+                setJsonResponse(parsedJsonResponse);
+
+                const [insertedRecord] = await db.insert(MockInterview)
+                    .values({
+                        mockId: uuidv4(),
+                        jsonMockResp: MockJsonResp,
+                        jobPosition: jobRole,
+                        jobDesc: jobDesc,
+                        jobExperience: jobExp,
+                        createdBy: user?.primaryEmailAddress?.emailAddress || '',
+                        createdAt: moment().format('YYYY-MM-DD')
+                    })
+                    .returning({ mockId: MockInterview.mockId });
+
+                console.log("Inserted ID:", insertedRecord.mockId);
+                if (insertedRecord) {
+                    setOpenDialog(false);
+                }
+            } catch (jsonError) {
+                console.error('Error parsing JSON response:', jsonError);
+            }
         } catch (error) {
             console.error('Error sending message:', error);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -85,7 +118,7 @@ function AddNewInterview() {
                                     <Button type="submit" disabled={loading}>
                                         {loading ?
                                             <>
-                                                <LoaderCircle className='animate-spin' />'Generating from AI'
+                                                <LoaderCircle className='animate-spin' /> Generating from AI
                                             </> : 'Start Interview'
                                         }
                                     </Button>
