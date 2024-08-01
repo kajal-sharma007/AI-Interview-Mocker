@@ -7,7 +7,6 @@ import {
     DialogDescription,
     DialogHeader,
     DialogTitle,
-    DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -19,6 +18,7 @@ import { MockInterview } from '@/utils/schema';
 import { v4 as uuidv4 } from "uuid";
 import { useUser } from '@clerk/nextjs';
 import moment from 'moment';
+import { useRouter } from 'next/navigation';
 
 function AddNewInterview() {
     const [openDialog, setOpenDialog] = useState(false);
@@ -27,14 +27,12 @@ function AddNewInterview() {
     const [jobExp, setJobExp] = useState<string>('');
     const [loading, setLoading] = useState(false);
     const [jsonResponse, setJsonResponse] = useState<any>(null);
-
+    const router = useRouter();
     const { user } = useUser();
 
     const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setLoading(true);
-
-        console.log(jobRole, ",", jobDesc, ",", jobExp)
 
         const inputPrompt = `Job Position: ${jobRole}, Job Description: ${jobDesc}, Years of Experience: ${jobExp}. Based on the job position, job description, and years of experience, provide ${process.env.NEXT_PUBLIC_INTERVIEW_QUESTION_COUNT} interview questions along with answers in JSON format. Provide fields for question and answer in the JSON.`;
 
@@ -47,6 +45,7 @@ function AddNewInterview() {
                 console.log(parsedJsonResponse);
                 setJsonResponse(parsedJsonResponse);
 
+                // Insert into the database
                 const [insertedRecord] = await db.insert(MockInterview)
                     .values({
                         mockId: uuidv4(),
@@ -60,8 +59,11 @@ function AddNewInterview() {
                     .returning({ mockId: MockInterview.mockId });
 
                 console.log("Inserted ID:", insertedRecord.mockId);
+
                 if (insertedRecord) {
                     setOpenDialog(false);
+                    // Navigate to the new interview page
+                    router.push(`/dashboard/interview/${insertedRecord.mockId}`);
                 }
             } catch (jsonError) {
                 console.error('Error parsing JSON response:', jsonError);
