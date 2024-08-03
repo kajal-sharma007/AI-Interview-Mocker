@@ -5,8 +5,9 @@ import { MockInterview } from '@/utils/schema';
 import { eq } from 'drizzle-orm';
 import Webcam from "react-webcam";
 import React, { useEffect, useState } from 'react';
-import { Lightbulb, LightbulbIcon, WebcamIcon } from 'lucide-react';
+import { LightbulbIcon, WebcamIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 interface InterviewDetails {
     id: number;
@@ -87,7 +88,9 @@ const Interview: React.FC<InterviewProps> = ({ params }) => {
                             </div>
                         </div>
                     </div>
-                    <Button className='ml-48'>START INTERVIEW</Button>
+                    <Link href={'/dashboard/interview/' + params.interviewId + '/start'}>
+                        <Button className='ml-48'>START INTERVIEW</Button>
+                    </Link>
                 </div>
             ) : (
                 <p>Loading...</p>
