@@ -4,6 +4,8 @@ import "./globals.css";
 import {
   ClerkProvider
 } from '@clerk/nextjs'
+import 'regenerator-runtime/runtime';
+
 
 const inter = Inter({ subsets: ["latin"] });
 

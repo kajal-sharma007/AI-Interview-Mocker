@@ -1,9 +1,37 @@
 import Webcam from 'react-webcam';
 import Image from 'next/image';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
+import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
+import { Mic } from 'lucide-react';
 
-function RecordAnswerSection() {
+const RecordAnswerSection: React.FC = () => {
+    const [userAnswer, setUserAnswer] = useState('');
+    const {
+        transcript,
+        listening,
+        resetTranscript,
+        browserSupportsSpeechRecognition,
+        finalTranscript,  // Add finalTranscript if available
+    } = useSpeechRecognition();
+
+    if (!browserSupportsSpeechRecognition) {
+        return <span>Browser doesn't support speech recognition.</span>;
+    }
+
+    // Handler functions
+    const handleStartListening = () => {
+        SpeechRecognition.startListening();
+    };
+
+    const handleStopListening = () => {
+        SpeechRecognition.stopListening();
+    };
+
+    // Update userAnswer when transcript changes
+    useEffect(() => {
+        setUserAnswer(prevAns => prevAns + transcript);
+    }, [transcript]);
 
     return (
         <div className='flex flex-col items-center justify-center'>
@@ -18,7 +46,17 @@ function RecordAnswerSection() {
                     }}
                 />
             </div>
-            <Button variant='outline' className='my-10'>Recored Answer</Button>
+            <Button variant='outline' className='my-10'
+                onClick={listening ? handleStopListening : handleStartListening}>
+                {listening ?
+                    <h2 className='text-red-600 flex gap-2'>
+                        <Mic /> Stop Recording
+                    </h2>
+                    :
+                    'Record Answer'
+                }
+            </Button>
+            <Button onClick={() => console.log(userAnswer)}>Show Answer</Button> {/* Display the final concatenated answer */}
         </div>
     );
 }
