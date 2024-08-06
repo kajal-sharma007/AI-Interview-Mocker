@@ -5,7 +5,7 @@ import { MockInterview } from '@/utils/schema';
 import { eq } from 'drizzle-orm';
 import React, { useEffect, useState } from 'react';
 import QuestionSection from './_components/QuestionSection';
-import RecordAnswerSeaction from './_components/RecordAnswerSeaction';
+import RecordAnswerSection from './_components/RecordAnswerSeaction'; // Ensure this is the correct path
 
 interface StartInterviewProps {
     params: {
@@ -22,8 +22,8 @@ interface InterviewData {
 const StartInterview: React.FC<StartInterviewProps> = ({ params }) => {
     const [interviewData, setInterviewData] = useState<InterviewData | null>(null);
     const [mockInterviewQuestion, setMockInterviewQuestion] = useState<any>(null);
-    const [ActiveQuestionIndex, setActiveQuestionIndex] = useState(0);
-
+    const [activeQuestionIndex, setActiveQuestionIndex] = useState<number>(0); // Fixed capitalization and type
+    const [isLoading, setIsLoading] = useState<boolean>(true);
 
     useEffect(() => {
         if (params.interviewId) {
@@ -38,26 +38,36 @@ const StartInterview: React.FC<StartInterviewProps> = ({ params }) => {
 
             if (result.length > 0) {
                 const jsonMockResp = JSON.parse(result[0].jsonMockResp);
-                console.log(jsonMockResp)
+                console.log(jsonMockResp);
                 setMockInterviewQuestion(jsonMockResp);
                 setInterviewData(result[0]);
             }
         } catch (error) {
             console.error('Error fetching interview details:', error);
+        } finally {
+            setIsLoading(false);
         }
     };
+
+    // Render a loading state until the data is fetched
+    if (isLoading) {
+        return <div>Loading...</div>;
+    }
 
     return (
         <div>
             <div className='grid grid-cols-1 md:grid-cols-2 gap-10'>
                 {/* Questions */}
-                <QuestionSection mockInterviewQuestion={mockInterviewQuestion}
-                    ActiveQuestionIndex={ActiveQuestionIndex}
+                <QuestionSection
+                    mockInterviewQuestion={mockInterviewQuestion}
+                    ActiveQuestionIndex={activeQuestionIndex}
                 />
 
-
                 {/* Video Audio Recording */}
-                <RecordAnswerSeaction />
+                <RecordAnswerSection
+                    mockInterviewQuestion={mockInterviewQuestion}
+                    ActiveQuestionIndex={activeQuestionIndex}
+                />
             </div>
         </div>
     );
