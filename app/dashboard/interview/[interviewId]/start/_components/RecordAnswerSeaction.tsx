@@ -1,3 +1,5 @@
+"use client"
+
 import Webcam from 'react-webcam';
 import Image from 'next/image';
 import React, { useEffect, useState } from 'react';
@@ -6,21 +8,36 @@ import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognitio
 import { Mic } from 'lucide-react';
 import { toast } from 'sonner';
 import { chatSession } from '@/utils/GeminiAi';
+import { db } from '@/utils/db';
+import { UserAnswer } from '@/utils/schema';
+import { useUser } from '@clerk/nextjs';
+import moment from 'moment';
 
 interface Question {
     question: string;
+    answer: string;
+}
+
+interface InterviewData {
+    mockId: string;
+    // Add other properties as needed
 }
 
 interface QuestionSectionProps {
     mockInterviewQuestion?: Question[];
     ActiveQuestionIndex: number;
+    interviewData: InterviewData; // Update type here
 }
 
-const RecordAnswerSection: React.FC<QuestionSectionProps> = ({ mockInterviewQuestion, ActiveQuestionIndex }) => {
+
+const RecordAnswerSection: React.FC<QuestionSectionProps> = ({ mockInterviewQuestion, ActiveQuestionIndex, interviewData }) => {
     const [userAnswer, setUserAnswer] = useState('');
+    const { user } = useUser();
+    const [loading, setloading] = useState(false);
     const {
         transcript,
         listening,
+        resetTranscript,
         browserSupportsSpeechRecognition,
         finalTranscript,
     } = useSpeechRecognition();
@@ -49,8 +66,10 @@ const RecordAnswerSection: React.FC<QuestionSectionProps> = ({ mockInterviewQues
 
     const saveUserAnswer = async () => {
         if (listening) {
+            setloading(true)
             handleStopListening();
             if (userAnswer.length < 10) {
+                setloading(false)
                 toast.error('Error while saving your answer. Please record again.');
                 return;
             }
@@ -63,7 +82,24 @@ const RecordAnswerSection: React.FC<QuestionSectionProps> = ({ mockInterviewQues
                 const mockJsonResp = result.response.text().replace(/```json|```/g, '');
                 console.log('Feedback Response:', mockJsonResp);
                 const JsonFeedbackResp = JSON.parse(mockJsonResp);
-                // Process the response as needed
+                const resp = await db.insert(UserAnswer)
+                    .values({
+                        mockIdRef: interviewData?.mockId,
+                        question: questions[ActiveQuestionIndex]?.question,
+                        correctAns: questions[ActiveQuestionIndex]?.answer,
+                        userAns: userAnswer,
+                        feedback: JsonFeedbackResp?.feedback,
+                        rating: JsonFeedbackResp?.rating,
+                        userEmail: user?.primaryEmailAddress?.emailAddress,
+                        createdAt: moment().format('DD-MM-YYYY')
+                    })
+                if (resp) {
+                    toast('User Answer recorded successfully')
+                    setUserAnswer('')
+                    resetTranscript()
+                }
+                resetTranscript()
+                setloading(false)
             } catch (error) {
                 console.error('Error in sending message:', error);
                 toast.error('Error while saving feedback');
@@ -72,6 +108,7 @@ const RecordAnswerSection: React.FC<QuestionSectionProps> = ({ mockInterviewQues
             handleStartListening();
         }
     };
+
 
     return (
         <div className='flex flex-col items-center justify-center'>
@@ -86,7 +123,7 @@ const RecordAnswerSection: React.FC<QuestionSectionProps> = ({ mockInterviewQues
                     }}
                 />
             </div>
-            <Button variant='outline' className='my-10' onClick={saveUserAnswer}>
+            <Button disabled={loading} variant='outline' className='my-10' onClick={saveUserAnswer}>
                 {listening ?
                     <h2 className='text-red-600 flex gap-2'>
                         <Mic /> Stop Recording
@@ -95,7 +132,6 @@ const RecordAnswerSection: React.FC<QuestionSectionProps> = ({ mockInterviewQues
                     'Record Answer'
                 }
             </Button>
-            <Button onClick={() => console.log('User Answer:', userAnswer)}>Show Answer</Button>
         </div>
     );
 }

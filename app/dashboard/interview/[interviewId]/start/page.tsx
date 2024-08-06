@@ -6,6 +6,8 @@ import { eq } from 'drizzle-orm';
 import React, { useEffect, useState } from 'react';
 import QuestionSection from './_components/QuestionSection';
 import RecordAnswerSection from './_components/RecordAnswerSeaction'; // Ensure this is the correct path
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 interface StartInterviewProps {
     params: {
@@ -20,7 +22,7 @@ interface InterviewData {
 }
 
 const StartInterview: React.FC<StartInterviewProps> = ({ params }) => {
-    const [interviewData, setInterviewData] = useState<InterviewData | null>(null);
+    const [interviewData, setInterviewData] = useState<InterviewData | any>(null);
     const [mockInterviewQuestion, setMockInterviewQuestion] = useState<any>(null);
     const [activeQuestionIndex, setActiveQuestionIndex] = useState<number>(0); // Fixed capitalization and type
     const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -67,9 +69,17 @@ const StartInterview: React.FC<StartInterviewProps> = ({ params }) => {
                 <RecordAnswerSection
                     mockInterviewQuestion={mockInterviewQuestion}
                     ActiveQuestionIndex={activeQuestionIndex}
+                    interviewData={interviewData}
                 />
             </div>
-        </div>
+            <div className='flex justify-end gap-6'>
+                {activeQuestionIndex > 0 && <Button onClick={() => setActiveQuestionIndex(activeQuestionIndex - 1)}>Previous Question</Button>}
+                {activeQuestionIndex != mockInterviewQuestion?.length - 1 && <Button onClick={() => setActiveQuestionIndex(activeQuestionIndex + 1)}>Next Question</Button>}
+                <Link href={'/dashboard/interview/' + interviewData?.mockId + '/feedback'}>
+                    {activeQuestionIndex == mockInterviewQuestion?.length - 1 && < Button > End Interview</Button>}
+                </Link>
+            </div>
+        </div >
     );
 };
 
