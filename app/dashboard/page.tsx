@@ -2,6 +2,7 @@ import React from 'react';
 import Header from './_components/Header';
 import { UserButton } from '@clerk/nextjs';
 import AddNewInterview from './_components/AddNewInterview';
+import InterviewList from './_components/InterviewList';
 
 interface DashboardProps {
     children?: React.ReactNode;
@@ -15,6 +16,8 @@ const Dashboard: React.FC<DashboardProps> = () => {
         <div className='grid grid-cols-1 md:grid-cols-3 my-5'>
             <AddNewInterview />
         </div>
+        {/* Previous Interview List */}
+        <InterviewList />
     </div>
 };
 
