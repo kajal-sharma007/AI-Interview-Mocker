@@ -59,7 +59,7 @@ function QuestionList() {
             {questionList.length > 0 ? (
                 <div className='flex flex-col gap-5 my-3 w-full'>
                     {questionList.map((question) => (
-                        <QuestionItemCard key={question.id} question={question} ActiveQuestionIndex={0} />
+                        <QuestionItemCard key={question.mockId} question={question} ActiveQuestionIndex={0} />
                     ))}
                 </div>
             ) : (

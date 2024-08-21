@@ -37,7 +37,7 @@ const QuestionItemCard: React.FC<QuestionItemCardProps> = ({ question, mockInter
                     <h2 className='font-bold text-primary'>{question.jobPosition}</h2>
                     <h2 className='text-sm text-gray-600'>{question.jobExperience} Years of Experience</h2>
                     <h2 className='text-xs text-gray-400'>Interview Date: {question.createdAt}</h2>
-                    <ChevronsUpDown className='' />
+                    <ChevronsUpDown />
                 </CollapsibleTrigger>
                 <CollapsibleContent>
                     {questions[ActiveQuestionIndex]?.question || 'No question available'}
