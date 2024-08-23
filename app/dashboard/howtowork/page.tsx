@@ -4,7 +4,7 @@ import { FaUser, FaTasks, FaPlus, FaQuestionCircle, FaVideo, FaPlay, FaMicrophon
 const HowToWork: React.FC = () => {
     return (
         <div className="flex flex-col p-6 space-y-4">
-            <div className="border rounded-lg bg-blue-50 my-2 border-blue-300 p-4 shadow-md hover:shadow-lg transition-shadow duration-300 ease-in-out">
+            <div className="border rounded-lg bg-blue-50 border-blue-300 p-4 shadow-md hover:shadow-lg transition-shadow duration-300 ease-in-out">
                 <div className="flex items-center mb-2">
                     <FaUser className="text-blue-500 text-2xl mr-3" />
                     <h2 className="text-blue-600 font-bold text-xl">
