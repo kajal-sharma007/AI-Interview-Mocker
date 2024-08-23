@@ -11,25 +11,25 @@ const images = [
   {
     url: '/business-hand-robot-handshake-artificial-intelligence-digital-transformation.jpg',
     title: 'AI Mock Interview',
-    width: '40%', // Set width for large screens
   },
   // Add more images as needed
 ];
 
 const ImageButton = styled(ButtonBase)(({ theme }) => ({
   position: 'relative',
-  height: 400, // Increased height
-  width: '100%', // Ensure full width on small screens
-  [theme.breakpoints.up('md')]: {
-    width: '40%', // Width on medium screens and up
+  height: 300, // Default height
+  width: '100%',
+  [theme.breakpoints.up('sm')]: {
+    height: 400, // Height for small screens and up
   },
-  [theme.breakpoints.down('sm')]: {
-    height: 200, // Height on small screens
+  [theme.breakpoints.up('md')]: {
+    width: '40%', // Width for medium screens and up
+    height: 400, // Ensure consistent height for medium screens and up
   },
   '&:hover, &.Mui-focusVisible': {
     zIndex: 1,
     '& .MuiImageBackdrop-root': {
-      opacity: 0.15,
+      opacity: 0.3,
     },
     '& .MuiImageMarked-root': {
       opacity: 0,
@@ -61,7 +61,7 @@ const Image = styled('span')(({ theme }) => ({
   alignItems: 'center',
   justifyContent: 'center',
   color: theme.palette.common.white,
-  padding: '20px', // Add padding for text
+  padding: theme.spacing(2), // Adjust padding
 }));
 
 const ImageBackdrop = styled('span')(({ theme }) => ({
@@ -80,8 +80,8 @@ const ImageMarked = styled('span')(({ theme }) => ({
   width: 130,
   backgroundColor: theme.palette.common.white,
   position: 'absolute',
-  bottom: 85,
-  left: 'calc(30% - 9px)',
+  bottom: 20,
+  left: 'calc(50% - 65px)', // Centered based on width
   transition: theme.transitions.create('opacity'),
 }));
 
@@ -101,7 +101,7 @@ export default function Home() {
         alignItems: 'center',
         height: '100vh',
         p: 2,
-        backgroundColor: '#BEDEF3', // Background color for the entire page
+        backgroundColor: '#F4F6F6 ', // Background color for the entire page
       }}
     >
       <Typography
@@ -112,6 +112,7 @@ export default function Home() {
           textAlign: 'center',
           fontWeight: 'bold',
           color: 'darkblue',
+          fontSize: { xs: 'h4.fontSize', sm: 'h3.fontSize', md: 'h2.fontSize' }, // Responsive text size
         }}
       >
         Let's get Started!
@@ -131,7 +132,7 @@ export default function Home() {
             focusRipple
             key={image.title}
             style={{
-              width: image.width,
+              width: '90%', // Full width with some margin for mobile
               margin: '10px',
             }}
             onClick={handleClick}
@@ -145,8 +146,9 @@ export default function Home() {
                 color="inherit"
                 sx={{
                   position: 'relative',
-                  p: 10,
+                  p: 2,
                   textAlign: 'center',
+                  fontSize: { xs: 'body2.fontSize', sm: 'body1.fontSize' }, // Responsive text size
                 }}
               >
                 {image.title}
